@@ -1,5 +1,5 @@
 export class UpdateBoardDto{
-   id: string;
+   id: number;
    title: string;
    text: string; 
 }

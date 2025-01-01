@@ -1,35 +1,23 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Board } from './types/board';
+import { Board } from './entity/board.entity';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { v4 as uuid } from "uuid";
 import { UpdateBoardDto } from './dto/update-board.dto';
+import { BoardsRepository } from './boards.repository';
 
 @Injectable()
 export class BoardsService {
+    constructor(private boardRepository: BoardsRepository){}
 
-    private boards: Board[] = [];
-    
-    getAllBoards(){
-        return this.boards;
+    async getAllBoards() {
+        return await this.boardRepository.find();
     }
 
-    createBoard(body: CreateBoardDto){
-        const utcTime = new Date();
-        const kstTime = new Date(utcTime.getTime() + 9 * 60 *60*1000);
-
-        const board: Board = {
-            id: uuid(),
-            title: body.title,
-            text: body.text,
-            createdAt: kstTime
-        }
-
-        this.boards.push(board);
-
-        return board;
+    createBoard(body: CreateBoardDto): Promise<Board>{
+       return this.boardRepository.createBoard(body)
     }
-    getBoardById(id: string){
-        const board = this.boards.find((board) => board.id === id);
+    async getBoardById(id: number){
+        const board = this.boardRepository.findOne({where: {id: id}});
 
         if(!board){
             throw new BadRequestException("에러메시지")
@@ -37,22 +25,24 @@ export class BoardsService {
         return board;
     }
 
-    deleteBoard(id: string){
-        const board = this.getBoardById(id);
+    // deleteBoard(id: string){
+    //     const board = this.getBoardById(id);
 
-        this.boards = this.boards.filter((board) => board.id !== id);
+    //     this.boards = this.boards.filter((board) => board.id !== id);
 
-        return board;
-    }
+    //     return board;
+    // }
 
     updateBoard(body: UpdateBoardDto){
-        const {id, title, text} = body;
+        return this.boardRepository.updateBoard(body)
+    }
 
-        const board = this.getBoardById(id);
+    async deleteBoard(id: number):Promise<void>{
+        const result = await this.boardRepository.delete(id);
 
-        board.title = title;
-        board.text = text;
-
-        return board;
+        if(result.affected === 0){
+            throw new BadRequestException();
+        }
+        console.log(result);
     }
 }
