@@ -49,6 +49,7 @@ export class WordRepository extends Repository<Word> {
   async get(user: User): Promise<Word[]> {
     const words = this.find({
       where: { users: { accountId: user.accountId } },
+      order: { createdAt: "DESC" },
     });
 
     return words;
