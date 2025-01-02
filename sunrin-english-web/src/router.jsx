@@ -6,6 +6,8 @@ import TodayWord from "./pages/TodayWord.jsx";
 import Voca from "./pages/Voca.jsx";
 import More from "./pages/More.jsx";
 import MenuLayout from "./layouts/MenuLayout.jsx";
+import PublicRoute from "./components/route/PublicRoute.jsx";
+import ProtectedRoute from "./components/route/ProtectedRoute.jsx";
 
 const router = createBrowserRouter([
   {
@@ -15,15 +17,27 @@ const router = createBrowserRouter([
       // 라우터 연결
       {
         path: "signin",
-        element: <SignIn></SignIn>,
+        element: (
+          <PublicRoute>
+            <SignIn></SignIn>
+          </PublicRoute>
+        ),
       },
       {
         path: "signup",
-        element: <SignUp></SignUp>,
+        element: (
+          <PublicRoute>
+            <SignUp></SignUp>
+          </PublicRoute>
+        ),
       },
       {
         path: "",
-        element: <MenuLayout></MenuLayout>,
+        element: (
+          <ProtectedRoute>
+            <MenuLayout></MenuLayout>
+          </ProtectedRoute>
+        ),
         children: [
           {
             path: "",

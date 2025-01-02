@@ -3,8 +3,9 @@ import styled, { css } from "styled-components";
 import Header from "../components/common/Header";
 import Input from "../components/common/Input";
 import WordListItem from "../components/voca/WordListItem";
-
 import AddIcon from "../assets/icons/add.svg";
+import axiosInstance from "../utils/axios";
+
 const VocaContainer = styled.div`
   width: 100%;
   min-height: calc(100% - 72px - 61px - 131px);
@@ -71,37 +72,69 @@ function Voca() {
 
   const [vocaWord, setVocaWord] = useState([]);
 
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get("/word");
+      setVocaWord(response.data.data);
+    } catch (e) {}
+  };
+
   useEffect(() => {
-    // 데이터 불러오기
-    const vocaWord = JSON.parse(localStorage.getItem("word") || "[]");
-    // 데이터 저장
-    setVocaWord(vocaWord);
+    fetchData();
   }, []);
 
-  const createWord = () => {
+  const createWord = async () => {
     // 단어 저장
     if (word.length === 0 || mean.length === 0) {
       return;
     }
+    try {
+      const response = await axiosInstance.post("/word/create", { word, mean });
+      setVocaWord([response.data.data, ...vocaWord]);
 
-    setVocaWord([{ word: word, mean: mean }, ...vocaWord]);
+      setWord("");
+      setMean("");
+    } catch (e) {
+      alert("단어 추가를 실패하였습니다.");
+      return;
+    }
 
-    const words = JSON.parse(localStorage.getItem("word") || "[]");
+    // setVocaWord([{ word: word, mean: mean }, ...vocaWord]);
 
-    words.unshift({ word: word, mean: mean });
-    console.log(JSON.stringify(words));
-    localStorage.setItem("word", JSON.stringify(words));
+    // const words = JSON.parse(localStorage.getItem("word") || "[]");
 
-    setWord("");
-    setMean("");
+    // words.unshift({ word: word, mean: mean });
+    // console.log(JSON.stringify(words));
+    // localStorage.setItem("word", JSON.stringify(words));
+
+    // setWord("");
+    // setMean("");
   };
 
-  const deleteWord = (index) => {
+  const deleteWord = async (index) => {
     // 단어 삭제
-    const newVocaWord = vocaWord.filter((_, i) => i !== index);
-    setVocaWord(newVocaWord);
+    // const newVocaWord = vocaWord.filter((_, i) => i !== index);
+    // setVocaWord(newVocaWord);
 
-    localStorage.setItem("word", JSON.stringify(newVocaWord));
+    // localStorage.setItem("word", JSON.stringify(newVocaWord));
+
+    const data = vocaWord[index];
+
+    const status = window.confirm(`${data.word}를 삭제하시겠습니다?`);
+
+    if (status == false) {
+      return;
+    }
+
+    try {
+      await axiosInstance.post("/word/delete", { id: data.id });
+
+      const newVocaWord = vocaWord.filter((_, i) => i !== index);
+
+      setVocaWord(newVocaWord);
+    } catch (e) {
+      alert("단어 삭제를 실패하였습니다.");
+    }
   };
   return (
     <>

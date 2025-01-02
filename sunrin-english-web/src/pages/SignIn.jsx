@@ -4,6 +4,7 @@ import { useState } from "react";
 import Input from "../components/common/Input";
 import Button from "../components/common/Button";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SignInContainer = styled.div`
   width: 100%;
@@ -32,6 +33,27 @@ function SignIn() {
 
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
+
+  const signInUser = async () => {
+    try {
+      if (id == "" || password == "") {
+        alert("빈칸을 모두 채워주세요.");
+        return;
+      }
+
+      const response = await axios.post("http://localhost:3000/user/signin", {
+        id: id,
+        password: password,
+      });
+
+      localStorage.setItem("accessToken", response.data.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.data.refreshToken);
+
+      navigate("/");
+    } catch (e) {
+      alert("아이디와 패스워드를 확인해주세요.");
+    }
+  };
 
   return (
     <SignInContainer>
@@ -63,9 +85,7 @@ function SignIn() {
       ></Input>
       {/* 로그인, 회원가입 버튼 */}
       <Button
-        onClick={() => {
-          navigate("/");
-        }}
+        onClick={signInUser}
         type="main"
         style={css`
           margin-bottom: 4px;

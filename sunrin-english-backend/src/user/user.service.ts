@@ -28,7 +28,7 @@ export class UserService {
       process.env.JWT_SECRET_KEY,
       {
         algorithm: "HS256",
-        expiresIn: type == "ACCESS_TOKEN" ? 7200 : 1209600,
+        expiresIn: type == "ACCESS_TOKEN" ? 10 : 1209600,
       }
     );
 

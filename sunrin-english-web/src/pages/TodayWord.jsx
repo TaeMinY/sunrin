@@ -3,6 +3,7 @@ import Header from "../components/common/Header";
 import styled from "styled-components";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import axiosInstance from "../utils/axios";
 
 const TodayWordContainer = styled.div`
   width: 100%;
@@ -41,7 +42,14 @@ function TodayWord() {
 
   useEffect(() => {
     // 데이터 불러오기
-    setWord(JSON.parse(localStorage.getItem("word") || "[]"));
+    // setWord(JSON.parse(localStorage.getItem("word") || "[]"));
+
+    axiosInstance.get("/word/random?count=5").then((response) => {
+      if (response) {
+        console.log(response);
+        setWord(response.data.data);
+      }
+    });
   }, []);
   return (
     <>
@@ -51,7 +59,7 @@ function TodayWord() {
         <Swiper spaceBetween={50} style={{ height: "100%" }}>
           {word.map((v) => {
             return (
-              <SwiperSlide>
+              <SwiperSlide key={v.id}>
                 <WordInnerContainer>
                   <Word>{v.word}</Word>
                   <Mean>{v.mean}</Mean>
